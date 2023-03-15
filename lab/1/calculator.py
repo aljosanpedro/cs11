@@ -1,5 +1,6 @@
 first = float(input())
 second = float(input())
+
 operator = input()
 
 result = 0

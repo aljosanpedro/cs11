@@ -3,10 +3,10 @@ B = int(input())
 
 n = int(input())
 
-if A > B:
-    larger, smaller = A, B
-else:
-    smaller, larger = A, B
 
-for i in range(smaller, larger, n):
+if A > B:
+    A,B = B,A
+
+
+for i in range(A, B, n):
     print(i)

@@ -7,6 +7,7 @@ while True:
     else:
         break
     
+    
 while True:
     if a % 2 == 0:
         print(f'{a }')

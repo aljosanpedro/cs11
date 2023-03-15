@@ -4,7 +4,6 @@ side2 = float(input())
 side3 = float(input())
 
 
-
 # CHECK VALIDITY
 valid = True
 

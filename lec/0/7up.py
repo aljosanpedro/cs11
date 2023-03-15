@@ -10,7 +10,7 @@ i = 0
 total = 0
 
 while True:
-    if not i == n:
+    if i != n:
         i += 1
         j = L[i-1]
         total += j
