@@ -12,6 +12,6 @@ for i in range(A,B,1):
         odds += 1
        
         
-print("Even numbers from A to B:", evens)
+print("Even numbers from A to B:", *evens)
 print("Number of odd numbers from A to B:", odds)
     
