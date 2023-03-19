@@ -1,16 +1,18 @@
-def main():
-    h = int(input("Arrow Height: "))
-
-
-    for i in range(1,h+1):
-        print_row(i)
-        
-    for i in range(h,1,-1):
-        print_row(i)
+A = int(input())
+B = int(input())
     
-def print_row(i):
-    row = "*"
-    row *= i
-    print(row)
-
-main()
+odds, evens = 0, []
+    
+    
+for i in range(A,B+1,1):
+    if i % 2 == 0:
+        evens.append(i)
+    else:
+        odds += 1
+        
+        
+    print(i)
+    
+print("List of even numbers:", evens)
+print("Number of odd numbers:", odds)
+    
