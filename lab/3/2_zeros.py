@@ -7,7 +7,7 @@ while True:
             valid = False
             
     if not valid:
-        print("Invalid input.")
+        print("Invalid input.\n")
         continue
     
     break

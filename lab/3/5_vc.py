@@ -1,6 +1,7 @@
 VOWELS = "aeiou"
 vowel_count, consonant_count = 0,0
 
+print()
 while True:
     word = input("Word [letters only]: ")
     valid = True

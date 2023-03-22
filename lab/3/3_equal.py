@@ -1,14 +1,18 @@
-n = int(input("How many elements in the list?: "))
+elements = int(input("\nHow many elements in the list?: "))
+print()
 
-L = []
-for i in range(n):
-    L.append(input(f"Element #{i+1}: "))
+list = []
+for element in range(elements):
+    list.append(input(f"Element #{element+1}: "))
 
 
 same = True
-for i in range(len(L)):
-    if (i < len(L)-1) and (L[i] != L[i+1]):
-        same = False
+for element in range(elements):
+    if element < len(list)-1:
+        if list[element] != list[element+1]:
+            same = False
 
 
+print()
 print("Are all elements in the list the same?:", same)
+print()
