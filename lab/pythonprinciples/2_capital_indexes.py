@@ -3,13 +3,13 @@ def main():
 
 
 def capital_indexes(string):
-    indeces = []
+    indexes = []
     
     for index in range(len(string)):
         if string[index].isupper():
-            indeces.append(index)
+            indexes.append(index)
     
-    return indeces
+    return indexes
     
     
 main()

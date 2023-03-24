@@ -3,14 +3,17 @@ def main():
 
 
 def all_equal(list):
-    same = True
+    has_same = True
+    list_length = len(list)
     
-    for index in range(len(list)):
-        if index < len(list)-1:
-            if list[index] != list[index+1]:
-            same = False
+    for index in range(list_length):
+        if index < list_length - 1:
+            
+            current_element, next_element = list[index], list[index + 1]
+            if not current_element == next_element:
+                has_same = False
 
-    return same
+    return has_same
 
 
 main()
