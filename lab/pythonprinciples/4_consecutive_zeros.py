@@ -5,13 +5,12 @@ def main():
 def consecutive_zeros(binary_string):
     consecutive_zeros, most_consecutive_zeros = 0,0
     
-    for character in binary_string:
-        
-        character = int(character)
-        if character == 0:
-            consecutive_zeros += 1
-        else:
+    for number in binary_string:
+        if number == '1':
             consecutive_zeros = 0
+            continue
+        
+        consecutive_zeros += 1
             
         if consecutive_zeros > most_consecutive_zeros:
             most_consecutive_zeros = consecutive_zeros
