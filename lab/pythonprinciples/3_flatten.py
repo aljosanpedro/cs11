@@ -9,6 +9,7 @@ def flatten(list_2d):
     
     for sublist_index in range(list_2d_length):
         sublist = list_2d[sublist_index]
+        
         sublist_length = len(sublist)
         
         for element_index in range(sublist_length):
