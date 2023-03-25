@@ -12,7 +12,7 @@ def flatten(list_2d):
         sublist_length = len(sublist)
         
         for element_index in range(sublist_length):
-            element = list_2d[sublist_index][element_index]
+            element = sublist[element_index]
             
             flat_list.append(element)
     
