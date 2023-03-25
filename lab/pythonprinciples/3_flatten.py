@@ -4,12 +4,16 @@ def main():
 
 def flatten(list_2d):
     flat_list = []
-
+    
     list_2d_length = len(list_2d)
-    for sublist in range(list_2d_length):
-        for element in range(list_2d_length[sublist]):
+    
+    for sublist_index in range(list_2d_length):
+        sublist = list_2d_length[sublist_index]
+        
+        for element_index in range(sublist):
+            element = list_2d[sublist_index][element_index]
             
-            flat_list.append(list_2d[sublist][element])
+            flat_list.append(element)
     
     return flat_list
 
