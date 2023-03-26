@@ -4,8 +4,9 @@ def main():
 
 def count(word):
     syllables = word.split('-')
+    syllables_count = len(syllables)
     
-    return len(syllables)
+    return syllables_count
     
     
 main()

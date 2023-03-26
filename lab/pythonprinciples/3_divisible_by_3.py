@@ -3,7 +3,7 @@ def main():
     
 
 def div_3(number):
-    is_div = False
+    is_divisible = False
     
     if number % 3 == 0:
         is_divisible = True
