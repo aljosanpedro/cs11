@@ -4,15 +4,15 @@ vowel_count, consonant_count = 0,0
 print()
 while True:
     word = input("Word [letters only]: ")
-    valid = True
+    valid_word = True
     
     for character in word:
         if not character.isalpha():
-            valid = False
+            valid_word = False
             break
     
-    if not valid:
-        print("Invalid input.\n")
+    if not valid_word:
+        print("Input should be a word.\n")
         continue
     
     print()
