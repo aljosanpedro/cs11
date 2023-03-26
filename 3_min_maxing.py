@@ -3,7 +3,12 @@ def main():
     
     
 def largest_difference(numbers):
-    return max(numbers) - min(numbers)
+    biggest_number = max(numbers)
+    smallest_number = min(numbers)
+    
+    largest_difference = biggest_number - smallest_number
+
+    return largest_difference
     
 
 main()
