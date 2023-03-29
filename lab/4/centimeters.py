@@ -11,7 +11,7 @@ inches = int(input())
 inches += (feet * FEET_TO_INCHES)
 
 cm = inches * INCHES_TO_CM
-cm = round(centimeters, DECIMALS)
+cm = round(cm, DECIMALS)
 
 
 print(f"Your height in centimeters is {cm} centimeters")
