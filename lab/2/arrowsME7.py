@@ -23,7 +23,7 @@ def get_base():
     BASE = 0
     
     while True:
-        BASE = float(input("How many rows [positive odd integer]?: "))
+        BASE = float(input("How many rows? [positive odd integer]: "))
         
         if (BASE <= 0 or 
             BASE % 2 == 0 or 
@@ -39,9 +39,9 @@ def get_base():
 
 def print_row(row_length):
     row = '*'
-    row *= row_length
+    row *= row_length - 1
     
-    print(row)
+    print(row + 'o')
     
     
 main()
