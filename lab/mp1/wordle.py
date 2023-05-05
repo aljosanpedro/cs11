@@ -29,7 +29,8 @@ Short Description:
 from random import randint
 from termcolor import colored
 
-# VALUES
+
+# GLOBAL VALUES
 # Constants
 MAX_GUESSES = 6
 MAX_LIFELINES = 2
@@ -39,6 +40,7 @@ LETTER_IN_WORD_COLOR = "yellow"
 MATCHING_LETTERS_COLOR = "green"
 
 UNDERSCORES_COLOR = "white" # lifeline
+
 
 # Variables
 guesses_left = MAX_GUESSES # counting down to 0
@@ -50,41 +52,145 @@ matching_letters = [] # lifeline
 did_win = None # not True/False; want to use None/not None as condition of stopping game
 
 
-# INITIALIZATION
-# Hidden Word
+# CENTRAL LOGIC
+def main():
+    # INITIALIZATION
+    (wordlist, hidden_word) = set_hidden_word()
+    
+    print_start_messages()
+    
+    # Uncomment next line for easier checking of win code:
+    # optional_reveal_hidden_word(hidden_word)
+
+    # GAME LOOP
+    while True:
+        # GUESS
+        guess = input_guess()
+        
+        # CASE CHECKING
+        if guess == "":
+            case_no_guess()
+            continue
+        elif guess == "lifeline":
+            case_lifeline()
+            continue
+        elif guess not in wordlist:
+            case_not_in_wordlist()
+            continue
+        else:
+            case_in_wordlist()
+            
+        # ROUND RESULTS
+        print() # for formatting
+        
+        update_guesses_left()
+        
+        did_win = set_did_win(hidden_word)
+        
+        # End loop if either won or lost
+            # did_win is True or False; not None
+        if not did_win is None:
+            break
+    
+    # GAME RESULTS
+    game_results(hidden_word)    
+
+
+# FUNCTIONS
+
+# 
+def set_hidden_word():
     # Words in a file are read, put in a list, and then 1 is picked randomly
-file = open("words.txt", 'r')
+    
+    file = open("words.txt", 'r')
+    
+    wordlist = file.read()
+    wordlist = wordlist.split('\n')
 
-words = file.read()
-words = words.split('\n')
+    hidden_word_index = randint(0, len(wordlist)-1)
+    hidden_word = wordlist[hidden_word_index]
 
-hidden_word_index = randint(0, len(words)-1)
-hidden_word = words[hidden_word_index]
-
-file.close()
-
-# Start Messages
-print("\nWORDLE\n")
-print("GUESS THE 5-LETTER HIDDEN WORD!")
-print("Enter \"lifeline\" for a hint at the cost of 1 guess\n")
-
-# Uncomment next line for easier checking of win code:
-# print(f"Hidden Word: {hidden_word}\n")
+    file.close()
+    
+    return (hidden_word, wordlist)
+  
+    
+def print_start_messages():
+    print("\nWORDLE\n")
+    print("GUESS THE 5-LETTER HIDDEN WORD!")
+    print("Enter \"lifeline\" for a hint at the cost of 1 guess\n")
 
 
-# GUESSES
-while True:    
-    # GUESS INPUT
+def optional_reveal_hidden_word(hidden_word):
+    print(f"Hidden Word: {hidden_word}\n")
+
+
+def input_guess():
     print(f"GUESSES LEFT : {guesses_left}")
     guess = input("Your Guess: ").strip().lower() # lowercase formatting
     
-    # CASE: NO GUESS
+    return guess
+
+
+def case_no_guess():
     # Observed that inputting nothing counted as a guess
         # my guess: a words list element is blank
-    if guess == "":
-        print("GUESS IS EMPTY!\n")
-        continue
+        
+    print("GUESS IS EMPTY!\n")
+
+
+def case_lifeline():
+    pass
+
+
+def case_not_in_wordlist():
+    # Placed this case later because it applied to input "lifeline"
     
+    print("WORD IS NOT IN WORDLIST!\n")
+
+
+def case_in_wordlist():
+    pass
+
+
+def update_guesses_left(guesses_left):
+    guesses_left -= 1
+    
+    return guesses_left
+
+
+def set_did_win(hidden_word):
+    # Stop if win or lose
+    
+    if guessed_word == hidden_word:
+        did_win = True
+    elif guesses_left == 0: # used elif in case won on last guess
+        did_win = False
+        
+    return did_win
+
+
+def game_results(hidden_word):
+    print()
+
+    if did_win:
+        print("CONGRATULATIONS! YOU HAVE GUESSED THE HIDDEN WORD!\n")
+        score = guesses_left + 1 # +1 since guesses_left subtracted from when win
+        print(f"YOUR SCORE : {score}")
+    else:
+        print("YOU LOSE!\n")
+        print(f"HIDDEN WORD : {hidden_word}")
+
+    print()
+
+
+
+# RUN
+main()
+
+
+
+while True:    
     # CASE: LIFELINE
         # Opted to stick to revealing 1 letter only even if 2nd/higher lifeline
     
@@ -154,12 +260,7 @@ while True:
             break
         
         continue
-    
-    # CASE: NOT IN WORDLIST
-        # Placed this late because it applied to "lifeline"
-    if guess not in words:
-        print("WORD IS NOT IN WORDLIST!\n")
-        continue
+
     
     # CASE: VALID WORD GUESS
         # No need for if statement identifier since all other cases were covered
@@ -212,31 +313,3 @@ while True:
             colored(w[4],c[4]),
         )
     
-    # POST-GUESS
-    print()
-    
-    # Update guesses left
-    guesses_left -= 1
-    
-    # Stop if win or lose
-    if guessed_word == hidden_word:
-        did_win = True
-    elif guesses_left == 0: # used elif in case won on last guess
-        did_win = False
-    
-    if not did_win is None:
-        break
-        
-
-# RESULTS
-print()
-
-if did_win:
-    print("CONGRATULATIONS! YOU HAVE GUESSED THE HIDDEN WORD!\n")
-    score = guesses_left + 1 # +1 since guesses_left subtracted from when win
-    print(f"YOUR SCORE : {score}")
-else:
-    print("YOU LOSE!\n")
-    print(f"HIDDEN WORD : {hidden_word}")
-
-print()
