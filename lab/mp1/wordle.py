@@ -36,36 +36,39 @@ MAX_GUESSES = 6
 MAX_LIFELINES = 2
 
 LETTER_NOT_IN_WORD_COLOR = "red"
-LETTER_IN_WORD_COLOR = "yellow"
+LETTER_IN_WORD_COLOR = "blue"
 MATCHING_LETTERS_COLOR = "green"
 
 UNDERSCORES_COLOR = "white" # lifeline
 
 
-# Variables
-guesses_left = MAX_GUESSES # set to max since counting down to 0
-lifelines_left = MAX_LIFELINES
-
-guessed_words = []
-matching_letters = [] # lifeline
-
-did_win = None # not True/False; want to use None/not None as condition of stopping game
-
-
 # CENTRAL LOGIC
 def main():
+    # Global Variables
+    guesses_left = MAX_GUESSES # set to max since counting down to 0
+    lifelines_left = MAX_LIFELINES
+
+    guessed_words = []
+    matching_letters = [] # lifeline
+
+    did_win = None # not True/False; want to use None/not None as condition of stopping game
+    
+    
     # INITIALIZATION
     (wordlist, hidden_word) = init_hidden_word()
+        
+    hidden_word = "kinky"
     
     init_start_messages()
     
     # Uncomment next line for easier checking of win code:
-    # init_reveal_word(hidden_word)
+    init_reveal_word(hidden_word)
+
 
     # GAME LOOP
     while True:
         # GUESS
-        guess = input_guess()
+        guess = input_guess(guesses_left)
         
         # CASE CHECKING
         if guess == "":
@@ -80,10 +83,13 @@ def main():
                 continue
             
             # Determine what to print
-            lifeline_print_text = case_lifeline_letter(hidden_word)
+            lifeline_print_text = case_lifeline_letter(hidden_word, matching_letters)
             lifeline_print_colors = case_lifeline_colors(lifeline_print_text)
             
-            lifeline_print_colors(lifeline_print_text, lifeline_print_colors)
+            case_lifeline_print(lifeline_print_text, lifeline_print_colors)
+            
+            # Track lifeline use
+            (lifelines_left, guesses_left) = case_lifeline_used(lifelines_left, guesses_left)
             
             # Check if still have guesses
             if guesses_left == 0:
@@ -95,30 +101,31 @@ def main():
             case_not_in_wordlist()
             continue
         else:
-            case_in_wordlist_remember_guess(guess)
+            case_in_wordlist_remember_guess(guess, guessed_words)
             
             # Check each guess up to current one
             for word in guessed_words:
                 word_print_colors = [] # reset colors per word
                 
-                word_print_colors = case_in_wordlist_colors(word, hidden_word, word_print_colors)
+                word_print_colors = case_in_wordlist_colors(word, hidden_word, word_print_colors, matching_letters)
                 
                 case_in_wordlist_print(word, word_print_colors)
             
         # ROUND RESULTS
         print() # for formatting
         
-        round_guess_used()
+        guesses_left = round_guess_used(guesses_left)
         
-        did_win = round_check_end(guess, hidden_word)
+        did_win = round_check_end(guess, hidden_word, guesses_left)
         
         # End loop if either won or lost
             # did_win is True or False; not None
         if not did_win is None:
             break
     
+    
     # GAME RESULTS
-    game_results(hidden_word)    
+    game_results(did_win, guesses_left, hidden_word)    
 
 
 # FUNCTIONS
@@ -137,7 +144,7 @@ def init_hidden_word():
 
     file.close()
     
-    return (hidden_word, wordlist)
+    return (wordlist, hidden_word)
   
     
 def init_start_messages():
@@ -151,7 +158,7 @@ def init_reveal_word(hidden_word):
 
 
 # Guess
-def input_guess():
+def input_guess(guesses_left):
     print(f"GUESSES LEFT : {guesses_left}")
     guess = input("Your Guess: ").strip().lower() # lowercase formatting
     
@@ -167,12 +174,12 @@ def case_no_guess():
     print("GUESS IS EMPTY!\n")
 
 
+# lifeline
 def case_lifeline_none():
     print("NO MORE LIFELINES LEFT\n")
     
 
-# lifeline
-def case_lifeline_letter(hidden_word):
+def case_lifeline_letter(hidden_word, matching_letters):
     # Placeholders for manipulation
     lifeline_word = hidden_word
     lifeline_print_text = "_____"
@@ -230,12 +237,14 @@ def case_lifeline_print(lifeline_print_text, lifeline_print_colors):
     )
 
 
-def case_lifeline_used():
+def case_lifeline_used(lifelines_left, guesses_left):
     lifelines_left -= 1
     guesses_left -= 1
     
     print(f"LIFELINES LEFT : {lifelines_left}\n")
-
+    
+    return (lifelines_left, guesses_left)
+    
 
 def case_lifeline_guesses():
     did_win = False
@@ -251,7 +260,7 @@ def case_not_in_wordlist():
 
 
 # in wordlist
-def case_in_wordlist_remember_guess(guess):
+def case_in_wordlist_remember_guess(guess, guessed_words):
     # Remember all guesses until current one
     guessed_word = guess # change name for logic
     guessed_words.append(guessed_word)
@@ -272,7 +281,7 @@ def case_in_wordlist_print(word, word_print_colors):
     )
     
 
-def case_in_wordlist_colors(word, hidden_word, word_print_colors):
+def case_in_wordlist_colors(word, hidden_word, word_print_colors, matching_letters):
     # Track colors per letter in current word
     
     for letter in word:
@@ -310,8 +319,9 @@ def round_guess_used(guesses_left):
     return guesses_left
 
 
-def round_check_end(guessed_word, hidden_word):
+def round_check_end(guessed_word, hidden_word, guesses_left):
     # Stop if win or lose
+    did_win = None
     
     if guessed_word == hidden_word:
         did_win = True
@@ -322,7 +332,7 @@ def round_check_end(guessed_word, hidden_word):
 
 
 # Game Results
-def game_results(hidden_word):
+def game_results(did_win, guesses_left, hidden_word):
     print()
 
     if did_win:
