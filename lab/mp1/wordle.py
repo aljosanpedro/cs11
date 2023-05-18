@@ -43,7 +43,7 @@ UNDERSCORES_COLOR = "white" # lifeline
 
 
 # Variables
-guesses_left = MAX_GUESSES # counting down to 0
+guesses_left = MAX_GUESSES # set to max since counting down to 0
 lifelines_left = MAX_LIFELINES
 
 guessed_words = []
@@ -55,12 +55,12 @@ did_win = None # not True/False; want to use None/not None as condition of stopp
 # CENTRAL LOGIC
 def main():
     # INITIALIZATION
-    (wordlist, hidden_word) = set_hidden_word()
+    (wordlist, hidden_word) = init_hidden_word()
     
-    print_start_messages()
+    init_start_messages()
     
     # Uncomment next line for easier checking of win code:
-    # optional_reveal_hidden_word(hidden_word)
+    # init_reveal_word(hidden_word)
 
     # GAME LOOP
     while True:
@@ -72,20 +72,45 @@ def main():
             case_no_guess()
             continue
         elif guess == "lifeline":
-            case_lifeline()
-            continue
+            # Opted to stick to revealing 1 letter only even if 2nd/higher lifeline
+            
+            # Check if still have lifeline/s
+            if lifelines_left == 0:
+                case_lifeline_none()
+                continue
+            
+            # Determine what to print
+            lifeline_print_text = case_lifeline_letter(hidden_word)
+            lifeline_print_colors = case_lifeline_colors(lifeline_print_text)
+            
+            lifeline_print_colors(lifeline_print_text, lifeline_print_colors)
+            
+            # Check if still have guesses
+            if guesses_left == 0:
+                did_win = case_lifeline_guesses()
+                break
+                
+            continue  
         elif guess not in wordlist:
             case_not_in_wordlist()
             continue
         else:
-            case_in_wordlist()
+            case_in_wordlist_remember_guess(guess)
+            
+            # Check each guess up to current one
+            for word in guessed_words:
+                word_print_colors = [] # reset colors per word
+                
+                word_print_colors = case_in_wordlist_colors(word, hidden_word, word_print_colors)
+                
+                case_in_wordlist_print(word, word_print_colors)
             
         # ROUND RESULTS
         print() # for formatting
         
-        update_guesses_left()
+        round_guess_used()
         
-        did_win = set_did_win(hidden_word)
+        did_win = round_check_end(guess, hidden_word)
         
         # End loop if either won or lost
             # did_win is True or False; not None
@@ -98,8 +123,8 @@ def main():
 
 # FUNCTIONS
 
-# 
-def set_hidden_word():
+# Initialization
+def init_hidden_word():
     # Words in a file are read, put in a list, and then 1 is picked randomly
     
     file = open("words.txt", 'r')
@@ -115,16 +140,17 @@ def set_hidden_word():
     return (hidden_word, wordlist)
   
     
-def print_start_messages():
+def init_start_messages():
     print("\nWORDLE\n")
     print("GUESS THE 5-LETTER HIDDEN WORD!")
     print("Enter \"lifeline\" for a hint at the cost of 1 guess\n")
 
 
-def optional_reveal_hidden_word(hidden_word):
+def init_reveal_word(hidden_word):
     print(f"Hidden Word: {hidden_word}\n")
 
 
+# Guess
 def input_guess():
     print(f"GUESSES LEFT : {guesses_left}")
     guess = input("Your Guess: ").strip().lower() # lowercase formatting
@@ -132,6 +158,8 @@ def input_guess():
     return guess
 
 
+# Guess Case Checking
+# no guess
 def case_no_guess():
     # Observed that inputting nothing counted as a guess
         # my guess: a words list element is blank
@@ -139,27 +167,150 @@ def case_no_guess():
     print("GUESS IS EMPTY!\n")
 
 
-def case_lifeline():
-    pass
+def case_lifeline_none():
+    print("NO MORE LIFELINES LEFT\n")
+    
+
+# lifeline
+def case_lifeline_letter(hidden_word):
+    # Placeholders for manipulation
+    lifeline_word = hidden_word
+    lifeline_print_text = "_____"
+    
+    # Remove known matching letters from hidden word
+    for letter in matching_letters:
+        lifeline_word = lifeline_word.replace(letter, '')
+    
+    # Randomly pick 1 unknown matching letter
+    lifeline_letter_index = randint(0, len(lifeline_word)-1)
+    lifeline_letter = lifeline_word[lifeline_letter_index]
+    
+    # Add picked letter to characters
+    # Find index of letter in hidden words
+    hidden_letter_index = hidden_word.find(lifeline_letter)
+    
+    # Type conversion to change an index value of string
+    lifeline_print_text = list(lifeline_print_text)
+    lifeline_print_text[hidden_letter_index] = lifeline_letter        
+    lifeline_print_text = ''.join(lifeline_print_text) # list -> string
+    
+    # Add picked letter to matching_letters
+        # Avoids duplicate lifelines
+    matching_letters.append(lifeline_letter)
+
+    return lifeline_print_text
 
 
+def case_lifeline_colors(lifeline_print_text):
+    lifeline_print_colors = []
+    
+    for character in lifeline_print_text:
+        if character == '_':
+            lifeline_print_colors.append(UNDERSCORES_COLOR)
+        else:
+            lifeline_print_colors.append(MATCHING_LETTERS_COLOR)
+            
+    return lifeline_print_colors
+
+
+def case_lifeline_print(lifeline_print_text, lifeline_print_colors):
+    # Shortened iterable names for convenience since repetitive guesss
+        # Planned to loop and apply same index to both iterables
+            # but this hard-coded method was easier  
+    
+    t = lifeline_print_text
+    c = lifeline_print_colors
+    
+    print(
+        colored(t[0],c[0]),
+        colored(t[1],c[1]),
+        colored(t[2],c[2]),
+        colored(t[3],c[3]),
+        colored(t[4],c[4]),
+    )
+
+
+def case_lifeline_used():
+    lifelines_left -= 1
+    guesses_left -= 1
+    
+    print(f"LIFELINES LEFT : {lifelines_left}\n")
+
+
+def case_lifeline_guesses():
+    did_win = False
+    
+    return did_win
+
+
+# not in wordlist
 def case_not_in_wordlist():
     # Placed this case later because it applied to input "lifeline"
     
     print("WORD IS NOT IN WORDLIST!\n")
 
 
-def case_in_wordlist():
-    pass
+# in wordlist
+def case_in_wordlist_remember_guess(guess):
+    # Remember all guesses until current one
+    guessed_word = guess # change name for logic
+    guessed_words.append(guessed_word)
 
 
-def update_guesses_left(guesses_left):
+def case_in_wordlist_print(word, word_print_colors):
+    # Print Colored Word
+        # Same thought process with lifeline printing
+    w = word # letter
+    c = word_print_colors # color of letter
+    
+    print(
+        colored(w[0],c[0]),
+        colored(w[1],c[1]),
+        colored(w[2],c[2]),
+        colored(w[3],c[3]),
+        colored(w[4],c[4]),
+    )
+    
+
+def case_in_wordlist_colors(word, hidden_word, word_print_colors):
+    # Track colors per letter in current word
+    
+    for letter in word:
+        # Letter not in word -> RED
+        if letter not in hidden_word:
+            word_print_colors.append(LETTER_NOT_IN_WORD_COLOR)
+            continue # ensures next lines assume letter is in word
+        
+        # Letter in word -> Yellow or Green
+        # Compare indeces of hidden & guessed words -> Green if match, Yellow if not
+        
+        # Letter Indeces
+            # careful to not find using guessed word -> colors of current guess apply to old
+        guessed_letter_index = word.find(letter)
+        hidden_letter_index = hidden_word.find(letter)
+        
+        # YELLOW
+        if not guessed_letter_index == hidden_letter_index:
+            word_print_colors.append(LETTER_IN_WORD_COLOR)
+            continue
+        
+        # GREEN
+        word_print_colors.append(MATCHING_LETTERS_COLOR)
+        
+        if letter not in matching_letters:
+            matching_letters.append(letter) # for lifeline
+            
+    return word_print_colors
+
+
+# Round Results
+def round_guess_used(guesses_left):
     guesses_left -= 1
     
     return guesses_left
 
 
-def set_did_win(hidden_word):
+def round_check_end(guessed_word, hidden_word):
     # Stop if win or lose
     
     if guessed_word == hidden_word:
@@ -170,6 +321,7 @@ def set_did_win(hidden_word):
     return did_win
 
 
+# Game Results
 def game_results(hidden_word):
     print()
 
@@ -187,129 +339,3 @@ def game_results(hidden_word):
 
 # RUN
 main()
-
-
-
-while True:    
-    # CASE: LIFELINE
-        # Opted to stick to revealing 1 letter only even if 2nd/higher lifeline
-    
-    if guess == "lifeline":
-        # Check if still have lifeline/s
-        if lifelines_left == 0:
-            print("NO MORE LIFELINES LEFT\n")
-            continue
-        
-        # Placeholders for manipulation
-        lifeline_word = hidden_word
-        lifeline_print_text = "_____"
-        
-        lifeline_print_colors = []
-        
-        # Remove known matching letters from hidden word
-        for letter in matching_letters:
-            lifeline_word = lifeline_word.replace(letter, '')
-        
-        # Randomly pick 1 unknown matching letter
-        lifeline_letter_index = randint(0, len(lifeline_word)-1)
-        lifeline_letter = lifeline_word[lifeline_letter_index]
-        
-        # Add picked letter to characters
-        # Find index of letter in hidden words
-        hidden_letter_index = hidden_word.find(lifeline_letter)
-        
-        # Type conversion to change an index value of string
-        lifeline_print_text = list(lifeline_print_text)
-        lifeline_print_text[hidden_letter_index] = lifeline_letter        
-        lifeline_print_text = ''.join(lifeline_print_text) # list -> string
-        
-        # Add picked letter to matching_letters
-            # Avoids duplicate lifelines
-        matching_letters.append(lifeline_letter)
-        
-        # Colors assignment
-        for character in lifeline_print_text:
-            if character == '_':
-                lifeline_print_colors.append(UNDERSCORES_COLOR)
-            else:
-                lifeline_print_colors.append(MATCHING_LETTERS_COLOR)
-        
-        # Printing
-            # Shortened iterable names for convenience since repetitive guesss
-            # Planned to loop and apply same index to both iterables, but this was easier  
-        t = lifeline_print_text
-        c = lifeline_print_colors
-        
-        print(
-            colored(t[0],c[0]),
-            colored(t[1],c[1]),
-            colored(t[2],c[2]),
-            colored(t[3],c[3]),
-            colored(t[4],c[4]),
-        )
-        
-        # Track lifeline use
-        lifelines_left -= 1
-        guesses_left -= 1
-        
-        print(f"LIFELINES LEFT : {lifelines_left}\n")
-        
-        # Check if still have guesses
-        if guesses_left == 0:
-            did_win = False
-            break
-        
-        continue
-
-    
-    # CASE: VALID WORD GUESS
-        # No need for if statement identifier since all other cases were covered
-    
-    # Remember all guesses until current one
-    guessed_word = guess # change name for logic
-    guessed_words.append(guessed_word)
-    
-    # Check each guess up to current one
-    for word in guessed_words:
-        
-        # Track colors per letter in current word
-        word_print_colors = []
-        
-        for letter in word:
-            # Letter not in word -> RED
-            if letter not in hidden_word:
-                word_print_colors.append(LETTER_NOT_IN_WORD_COLOR)
-                continue # ensures next lines assume letter is in word
-            
-            # Letter in word -> Yellow or Green
-            # Compare indeces of hidden & guessed words -> Green if match, Yellow if not
-            
-            # Letter Indeces
-                # careful to not find using guessed word -> colors of current guess apply to old
-            guessed_letter_index = word.find(letter)
-            hidden_letter_index = hidden_word.find(letter)
-            
-            # YELLOW
-            if not guessed_letter_index == hidden_letter_index:
-                word_print_colors.append(LETTER_IN_WORD_COLOR)
-                continue
-            
-            # GREEN
-            word_print_colors.append(MATCHING_LETTERS_COLOR)
-            
-            if letter not in matching_letters:
-                matching_letters.append(letter) # for lifeline
-        
-        # Print Colored Word
-            # Same thought process with lifeline printing
-        w = word # letter
-        c = word_print_colors # color of letter
-        
-        print(
-            colored(w[0],c[0]),
-            colored(w[1],c[1]),
-            colored(w[2],c[2]),
-            colored(w[3],c[3]),
-            colored(w[4],c[4]),
-        )
-    
