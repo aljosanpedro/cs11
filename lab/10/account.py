@@ -1,8 +1,8 @@
 users = {}
 
-FIRST_NAME = "FirstName"
+NAME = "Name"
 PASSWORD = "Password"
-IS_LOGGED_IN = "LoggedIn"
+LOGGED_IN = "Logged In"
 
 
 def main():
@@ -26,10 +26,12 @@ def main():
     logout("user2")
     logout("user3")
     
+    login("user4", "Granger") # should quit 
+    
 
 
-def get_info(username, info):
-    return users[username][info]
+def get_user_info(user, info):
+    return users[user][info]
 
 
 def print_users():
@@ -37,79 +39,98 @@ def print_users():
     
     print("List of Users:\n")
     
-    for username in users.keys():
-        first_name = get_info(username, FIRST_NAME).title()
-        password = get_info(username, PASSWORD)
-        is_logged_in = get_info(username, IS_LOGGED_IN)
-    
-        username = username.title()
+    for user in users.keys():
+        name = get_user_info(user, NAME)
+        name = name.title()
         
-        print(f"\t{username} [First Name: {first_name} | Password: {password} | Logged In: {is_logged_in}]")
+        password = get_user_info(user, PASSWORD)
+        logged_in = get_user_info(user, LOGGED_IN)
+        
+        if logged_in:
+            logged_in = "Logged In"
+        else:
+            logged_in = "Logged Out"
+    
+        user = user.title() # here bc lowercase only in users {}
+        
+        
+        print(f"\t{user} [First Name: {name}| Password: {password} | {logged_in}]")
+        
         
     print()
 
 
-def create_account(username, first_name, password):
-    users[username] = {
-        FIRST_NAME : first_name,
+
+def create_account(user, name, password):
+    name = name.title()
+    
+    
+    users[user] = {
+        NAME : name,
         PASSWORD : password,
-        IS_LOGGED_IN : False,
+        LOGGED_IN : False,
     }
     
-    first_name = first_name.title()
-    print(f"Account created successfully, {first_name}!\n")
     
+    print(f"Account created successfully, {name}!\n")
+
     print_users()
 
 
-def login(username, input_password):
-    if not username in users.keys():
+def login(user, input_password):
+    if not user in users.keys():
+        print("Unrecognized user!\n")
         quit()
         
-    current_password = get_info(username, PASSWORD)
-    first_name = get_info(username, FIRST_NAME)
+    current_password = get_user_info(user, PASSWORD)
+    name = get_user_info(user, NAME)
     
     if not current_password == input_password:
-        print(f"Password is incorrect, {first_name}!\n")
+        print(f"Password is incorrect, {name}!\n")
         return
     
     
-    users[username][IS_LOGGED_IN] = True
+    users[user][LOGGED_IN] = True
     
-    print(f"Hello {first_name}!\n")
+    
+    print(f"Hello {name}!\n")
 
 
-def change_password(username, old_password, new_password):
-    if not username in users.keys():
-        print("Unrecognized username!\n")
+def logout(user):
+    users[user][LOGGED_IN] = False
+    
+    
+    name = get_user_info(user, NAME)
+    
+    print(f"Goodbye {name}!\n")
+
+
+def change_password(user, old_password, new_password):
+    if not user in users.keys():
+        print("Unrecognized user!\n")
         return
     
-    is_logged_in = get_info(username, IS_LOGGED_IN)
-    first_name = get_info(username, FIRST_NAME)
+    logged_in = get_user_info(user, LOGGED_IN)
+    name = get_user_info(user, NAME)
     
-    if not is_logged_in:
-        print(f"Login first before changing passwords, {first_name}!\n")
+    if not logged_in:
+        print(f"Login first before changing passwords, {name}!\n")
         return
     
-    current_password = get_info(username, PASSWORD)
+    current_password = get_user_info(user, PASSWORD)
     
-    if not current_password == old_password:
-        print(f"Password is incorrect, {first_name}!\n")
+    if not old_password == current_password:
+        print(f"Password is incorrect, {name}!\n")
         return
     
     
-    users[username][PASSWORD] = new_password
-        
-    print(f"Password changed successfully, {first_name}!\n")
+    users[user][PASSWORD] = new_password
+
+
+    print(f"Password changed successfully, {name}!\n")
+    
     print_users()
     
-
-def logout(username):
-    users[username][IS_LOGGED_IN] = False
-    
-    first_name = get_info(username, FIRST_NAME)
-    print(f"Goodbye {first_name}!\n")
-
 
 
 main()
