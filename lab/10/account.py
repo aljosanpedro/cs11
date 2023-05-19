@@ -28,18 +28,23 @@ def main():
     
 
 
+def get_info(username, info):
+    return users[username][info]
+
+
 def print_users():
     # UserNo. [ First Name: ___ | Password: ___ | Logged In: ___ ]
     
-    print("List of Users:")
+    print("List of Users:\n")
     
-    for user in users.keys():
-        username = user.title()
-        first_name = users[user][FIRST_NAME].title()
-        password = users[user][PASSWORD]
-        is_logged_in = users[user][IS_LOGGED_IN]
+    for username in users.keys():
+        first_name = get_info(username, FIRST_NAME).title()
+        password = get_info(username, PASSWORD)
+        is_logged_in = get_info(username, IS_LOGGED_IN)
     
-        print(f"    {username} [First Name: {first_name} | Password: {password} | Logged In: {is_logged_in}]")
+        username = username.title()
+        
+        print(f"\t{username} [First Name: {first_name} | Password: {password} | Logged In: {is_logged_in}]")
         
     print()
 
@@ -52,22 +57,26 @@ def create_account(username, first_name, password):
     }
     
     first_name = first_name.title()
-    print(f"Your account was created successfully, {first_name}!\n")
+    print(f"Account created successfully, {first_name}!\n")
     
     print_users()
 
 
 def login(username, input_password):
-    if username in users.keys():
-        current_password = users[username][PASSWORD]
-        
-        if current_password == input_password:
-            users[username][IS_LOGGED_IN] = True
-            
-            first_name = users[username][FIRST_NAME]
-            print(f"Hello {first_name}!\n")
-    else:
+    if not username in users.keys():
         quit()
+        
+    current_password = get_info(username, PASSWORD)
+    first_name = get_info(username, FIRST_NAME)
+    
+    if not current_password == input_password:
+        print(f"Password is incorrect, {first_name}!\n")
+        return
+    
+    
+    users[username][IS_LOGGED_IN] = True
+    
+    print(f"Hello {first_name}!\n")
 
 
 def change_password(username, old_password, new_password):
@@ -75,22 +84,21 @@ def change_password(username, old_password, new_password):
         print("Unrecognized username!\n")
         return
     
-    is_logged_in = users[username][IS_LOGGED_IN]
-    first_name = users[username][FIRST_NAME]
+    is_logged_in = get_info(username, IS_LOGGED_IN)
+    first_name = get_info(username, FIRST_NAME)
     
     if not is_logged_in:
         print(f"Login first before changing passwords, {first_name}!\n")
         return
     
-    current_password = users[username][PASSWORD]
+    current_password = get_info(username, PASSWORD)
     
     if not current_password == old_password:
-        print(f"Inputted current password is incorrect, {first_name}!\n")
+        print(f"Password is incorrect, {first_name}!\n")
         return
     
     
     users[username][PASSWORD] = new_password
-        
         
     print(f"Password changed successfully, {first_name}!\n")
     print_users()
@@ -99,7 +107,7 @@ def change_password(username, old_password, new_password):
 def logout(username):
     users[username][IS_LOGGED_IN] = False
     
-    first_name = users[username][FIRST_NAME]
+    first_name = get_info(username, FIRST_NAME)
     print(f"Goodbye {first_name}!\n")
 
 
