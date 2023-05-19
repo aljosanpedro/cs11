@@ -56,8 +56,6 @@ def main():
     
     # INITIALIZATION
     (wordlist, hidden_word) = init_hidden_word()
-        
-    hidden_word = "kinky"
     
     init_start_messages()
     

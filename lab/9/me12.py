@@ -22,7 +22,17 @@ def main():
         word = words[i]
         words[i] = word.strip('-')
         
-    # "sorts" the list beforehand so dictionary sorts itself while counting
+    # remove empty entries
+    temp_words = [] # use temp list bc pop(i) makes loops run out of indeces
+        
+    for i in range(len(words)):
+        word = words[i]      
+        if not word == '':
+            temp_words.append(word)
+            
+    words = temp_words
+        
+    # sorts the list beforehand so dictionary "sorts" itself while counting
     words = sorted(words)
     
     

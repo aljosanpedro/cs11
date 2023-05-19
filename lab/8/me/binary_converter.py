@@ -13,7 +13,9 @@ def binary_converter(binary):
         number = binary[i]
         number = int(number)
         
-        value = pow(2, len(binary) - i - 1)
+        exponent = len(binary) - i - 1
+        
+        value = pow(2, exponent)
         
         if number == 1:
             decimal += value

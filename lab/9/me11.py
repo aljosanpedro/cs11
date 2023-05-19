@@ -20,8 +20,18 @@ def main():
     for i in range(len(words)):
         word = words[i]
         words[i] = word.strip('-')
+      
+    # remove empty entries
+    temp_words = [] # use temp list bc pop(i) makes loops run out of indeces
         
-    # "sorts" the list beforehand so dictionary sorts itself while counting
+    for i in range(len(words)):
+        word = words[i]      
+        if not word == '':
+            temp_words.append(word)
+            
+    words = temp_words
+        
+    # sorts the list beforehand so dictionary "sorts" itself while counting
     words = sorted(words)
     
     
