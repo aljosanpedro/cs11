@@ -35,7 +35,7 @@ MAX_GUESSES = 6
 MAX_LIFELINES = 2
 
 LETTER_NOT_IN_WORD_COLOR = "red"
-LETTER_IN_WORD_COLOR = "yellow"
+LETTER_IN_WORD_COLOR = "blue"
 MATCHING_LETTERS_COLOR = "green"
 
 UNDERSCORES_COLOR = "white" # lifeline
@@ -77,6 +77,8 @@ while True:
     # GUESS INPUT
     print(f"GUESSES LEFT : {guesses_left}")
     guess = input("Your Guess: ").strip().lower() # lowercase formatting
+    
+    hidden_word = "spoon"
     
     # CASE: NO GUESS
     # Observed that inputting nothing counted as a guess
