@@ -1,45 +1,63 @@
+SEPARATOR = ' '
 COMPRESSION_FACTOR = 5
+
+Y_RANGE = range(-5,6,1)
+X_RANGE = range(-5,6,1)
+
+POINT_TEXT = ' * '
+BLANK_TEXT = '   '
+
 
 
 def main():
-    
-    #points = [(5,6), (3,4), (1,2)]
-    
-    coefficients = [1,2,4]
-    exponents = [2,3,1]
-    
-    print(f"Coefficients: {coefficients}")
-    print(f"Exponents: {exponents}")
+    # INPUT
+    print("---INPUT--- \n")
+    coefficients = input_numbers_list("coefficients")
+    exponents = input_numbers_list("exponents")
     print()
     
-    # coefficients = [1]
-    # exponents = [2]
 
+    # OUTPUT
+    print("---OUTPUT--- \n")
     points = generate_points(coefficients, exponents)
     final_points = grapher(points)
     inverted_points = function_inverse(final_points)
     function_or_relation(inverted_points)
 
 
+def input_numbers_list(numbers_type):
+    while True:
+        numbers = input(f"{numbers_type.title()} [ex. 1{SEPARATOR}2{SEPARATOR}3]: ").strip()
+        numbers = numbers.split(sep=SEPARATOR)
+        
+        for index in range(len(numbers)):
+            number = numbers[index]
+            
+            if not number.isdecimal():
+                print("Input Error: Input should be numbers divided by spaces only.")
+                continue
+            
+            numbers[index] = int(number)
+            
+        print(f"{numbers_type.title()}: {numbers} \n")
+        
+        return numbers
+
 
 def sort_points(points):
     # confirmed: list.sort() works for tuples in a list
-    # to-do: manual via sorting algo?
     
     points.sort()
 
     return points
 
 
-
 def generate_points(coefficients, exponents):
-    # Initializations
     points = [] # [(x1,y1), (x2,y2), ...]
-    c,e = coefficients, exponents # for convenience
 
     
     # List length checking
-    if not len(c) == len(e):
+    if not len(coefficients) == len(exponents):
         print("Error: Unequal Lengths of Coefficients and Exponents Lists")
         return
 
@@ -47,10 +65,12 @@ def generate_points(coefficients, exponents):
     # Print equation
     equation = "y = "
     
-    for i in range(len(e)):
-        term = str(c[i]) + 'x' + '^' + str(e[i])
+    for index in range(len(exponents)):
+        coefficient, exponent = coefficients[index], exponents[index]
         
-        if not i == len(e) -1:
+        term = str(coefficient) + 'x' + '^' + str(exponent)
+        
+        if not index == len(exponents) - 1:
             term += ' + '
         
         equation += term
@@ -59,35 +79,37 @@ def generate_points(coefficients, exponents):
     
     
     # Generate points
-    for x in range(-5,6,1):
+    for x in X_RANGE:
         y = 0
         
-        for i in range(len(e)):                        
-            product = c[i] * pow(x,e[i])
+        for index in range(len(exponents)):
+            coefficient, exponent = coefficients[index], exponents[index]
+            
+            product = coefficient * pow(x, exponent)
             
             y += product
             
         points.append((x,y))
     
-    # no need to call sort_points(points) bc loop from -5,5 already
+    # no need to sort points (tuples) bc loop from -5,5 already
 
 
-    print(f"Generated Points: \n {points} \n")    
+    print(f"Generated Points: \n {points} \n")
     return points
 
 
 def grapher(points):
     # Prepare points
     compressed_points = compress_points(points, COMPRESSION_FACTOR)
-    final_points = []
+    final_points = [] # replace pts w/ compressed pts if outside X or Y ranges
     
-    for i in range(len(points)):
-        (x,y) = points[i] # (x,y)
+    for index in range(len(points)):
+        (x,y) = points[index] # (x,y)
         
         # Use compressed y if beyond range
-        if not -5 <= y <= 5:
-            compressed_point = compressed_points[i]
-            y = compressed_point[1]
+        if not y in Y_RANGE:
+            compressed_point = compressed_points[index]
+            y = compressed_point[1] # (x,y), y = index 1
         
         final_points.append((x,y))
         
@@ -97,25 +119,28 @@ def grapher(points):
     # Print graph
     print("Compressed Graph:")
         
-    for row in range(11):
+    for row in range(len(Y_RANGE)): # 0 -> 11, not -5 -> +5, bc easier to access elements
         row_text = ''
         
-        for column in range(11):
-            # row index: 0 -> x: -5; subtract 5
-            # column index: 0 -> y: 
-            point = (column-5, ((row-5) * -1))
+        column_correction = int(len(X_RANGE) / 2)
+        row_correction = int(len(Y_RANGE) / 2)
+        
+        for column in range(len(X_RANGE)):
+            # row index: 0 -> x = 5; subtract half of length of row range
+            # column index: 0 -> y = -5 ; subtract same, but opposite sign
             
-            if not point in final_points:
-                is_point = '   '
+            
+            point = (column-column_correction, ((row-row_correction) * -1))
+            
+            if point in final_points:
+                row_text += POINT_TEXT
             else:
-                is_point = ' * '
-                
-            row_text += is_point
-            
+                row_text += BLANK_TEXT            
             
         print(row_text)
         
     print()
+      
         
     return final_points # to remove; for testing guide examples only
             
@@ -133,7 +158,7 @@ def compress_points(points, n):
     for point in points:
         (x,y) = point
         
-        modulo = abs(y) % 5 # acted weird when y was negative -> absolute value
+        modulo = abs(y) % COMPRESSION_FACTOR # acted weird when y was negative -> absolute value
         
         # If negative before compression, retain negative
         if y < 0:
@@ -168,7 +193,7 @@ def print_mapping_of_values(points):
     
     
     points = sort_points(points)
-        
+
     for point in points:
         (x,y) = point
         
@@ -179,8 +204,10 @@ def print_mapping_of_values(points):
     
     
     print("Value Map:")
+    
     for x in value_map:
         print(f"{x} : {value_map[x]}")
+        
     print()
     
 
@@ -190,6 +217,7 @@ def function_or_relation(points):
     
     points = sort_points(points)
     value_map = {}
+        
         
     for point in points:
         (x,y) = point
@@ -201,18 +229,23 @@ def function_or_relation(points):
     
     
     for x in value_map:
-        if not len(value_map[x]) == 1:
+        if not len(value_map[x]) == 1: # function if x maps to only 1 y
             is_function = False
     
     
+    print("Relationship:")
+    
     if is_function:
-        print("Points are a Function. \n")
+        print("Function \n")
     else:
-        print("Points are a Relation. \n")
+        print("Relation \n")
         
+        # if relation, print value map
         print("Value Map:")
+        
         for x in value_map:
             print(f"{x} : {value_map[x]}")
+        
         print()
     
     return is_function
